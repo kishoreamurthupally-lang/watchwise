@@ -1,44 +1,62 @@
 package com.Movies.watchwise_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.sendgrid.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${SENDGRID_API_KEY}")
+    private String apiKey;
 
     public void sendOtpEmail(String toEmail, String otp) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(toEmail);
-            message.setSubject(" WatchWise OTP Verification");
-            message.setText("Your OTP for WatchWise registration is: " + otp + 
-                           "\n\nThis OTP is valid for 5 minutes.\nDo not share it with anyone.\n\nRegards,\nWatchWise Team");
+            Email from = new Email("kishoreamurthupally@gmail.com"); // verified email
+            String subject = "WatchWise OTP Verification";
+            Email to = new Email(toEmail);
+            Content content = new Content("text/plain",
+                    "Your OTP is: " + otp + "\nValid for 5 minutes.");
 
-            mailSender.send(message);
-            System.out.println(" OTP Email sent successfully to: " + toEmail);
+            Mail mail = new Mail(from, subject, to, content);
+
+            SendGrid sg = new SendGrid(apiKey);
+            Request request = new Request();
+
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sg.api(request);
+
+            System.out.println("SendGrid Status: " + response.getStatusCode());
+
         } catch (Exception e) {
-            System.err.println(" Failed to send OTP email to " + toEmail);
-            e.printStackTrace();   // Console lo full error chudataniki
-            throw new RuntimeException("Failed to send OTP. Please try again later.");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send OTP");
         }
     }
 
     public void sendWelcomeEmail(String toEmail, String username) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(toEmail);
-            message.setSubject(" Welcome to WatchWise!");
-            message.setText("Hi " + username + ",\n\nWelcome to WatchWise! Enjoy exploring movies \n\nRegards,\nWatchWise Team");
+            Email from = new Email("kishoreamurthupally@gmail.com");
+            String subject = "Welcome to WatchWise!";
+            Email to = new Email(toEmail);
+            Content content = new Content("text/plain",
+                    "Hi " + username + ", Welcome to WatchWise!");
 
-            mailSender.send(message);
-            System.out.println(" Welcome Email sent to: " + toEmail);
+            Mail mail = new Mail(from, subject, to, content);
+
+            SendGrid sg = new SendGrid(apiKey);
+            Request request = new Request();
+
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            sg.api(request);
+
         } catch (Exception e) {
-            System.err.println(" Failed to send Welcome email");
             e.printStackTrace();
         }
     }
