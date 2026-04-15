@@ -1,6 +1,14 @@
 package com.Movies.watchwise_backend.service;
 
-import com.sendgrid.*;
+import com.sendgrid.SendGrid;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.Method;
+
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Content;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +18,12 @@ public class EmailService {
     @Value("${SENDGRID_API_KEY}")
     private String apiKey;
 
+    // ✅ OTP EMAIL
     public void sendOtpEmail(String toEmail, String otp) {
         try {
-            System.out.println("👉 API KEY: " + apiKey);
             System.out.println("👉 Sending OTP to: " + toEmail);
 
-            Email from = new Email("kishoreamurthupally@gmail.com"); // verified email
+            Email from = new Email("kishoreamurthupally@gmail.com");
             String subject = "WatchWise OTP Verification";
             Email to = new Email(toEmail);
 
@@ -34,9 +42,7 @@ public class EmailService {
             Response response = sg.api(request);
 
             System.out.println("✅ Status: " + response.getStatusCode());
-            System.out.println("✅ Body: " + response.getBody());
 
-            // IMPORTANT CHECK
             if (response.getStatusCode() != 202) {
                 throw new RuntimeException("Email sending failed");
             }
@@ -47,6 +53,7 @@ public class EmailService {
         }
     }
 
+    // ✅ ADD THIS METHOD (VERY IMPORTANT)
     public void sendWelcomeEmail(String toEmail, String username) {
         try {
             Email from = new Email("kishoreamurthupally@gmail.com");
@@ -54,7 +61,7 @@ public class EmailService {
             Email to = new Email(toEmail);
 
             Content content = new Content("text/plain",
-                    "Hi " + username + ", Welcome to WatchWise!");
+                    "Hi " + username + ", Welcome to WatchWise 🎉");
 
             Mail mail = new Mail(from, subject, to, content);
 
