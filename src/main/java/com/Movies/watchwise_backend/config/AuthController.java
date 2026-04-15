@@ -31,21 +31,25 @@ public class AuthController {
 
     // STEP 1 — Send OTP
  //  STEP 1 — Send OTP
-    @PostMapping("/send-otp")
-    public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
-        String email = req.get("email").toLowerCase().trim();
-        if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
-            throw new CustomException("Email already registered");
-        }
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
-        OtpStore.otpMap.put(email, otp);
+  @PostMapping("/send-otp")
+public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
 
-        //  Always print OTP in terminal for testing
-        System.out.println("🔐 OTP for " + email + " is: " + otp);
+    String email = req.get("email").toLowerCase().trim();
 
-        emailService.sendOtpEmail(email, otp);
-        return Map.of("message", "OTP sent! Check terminal if email fails.");
+    if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
+        throw new CustomException("Email already registered");
     }
+
+    String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+    OtpStore.otpMap.put(email, otp);
+
+    System.out.println("🔐 OTP for " + email + " is: " + otp);
+
+    emailService.sendOtpEmail(email, otp);
+
+    // ✅ IMPORTANT CHANGE
+    return Map.of("message", "OTP sent successfully");
+}
 
     //  STEP 2 — Verify OTP
     @PostMapping("/verify-otp")
