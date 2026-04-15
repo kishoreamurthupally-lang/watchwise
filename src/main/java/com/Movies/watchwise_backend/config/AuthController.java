@@ -31,22 +31,21 @@ public class AuthController {
 
     // STEP 1 — Send OTP
  //  STEP 1 — Send OTP
-@PostMapping("/send-otp")
-public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
+    @PostMapping("/send-otp")
+    public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
+        String email = req.get("email").toLowerCase().trim();
+        if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
+            throw new CustomException("Email already registered");
+        }
+        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+        OtpStore.otpMap.put(email, otp);
 
-    String email = req.get("email").toLowerCase().trim();
+        //  Always print OTP in terminal for testing
+        System.out.println("🔐 OTP for " + email + " is: " + otp);
 
-  
-
-    String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
-    OtpStore.otpMap.put(email, otp);
-
-    System.out.println("🔐 OTP for " + email + " is: " + otp);
-
-    emailService.sendOtpEmail(email, otp);
-
-    return Map.of("message", "OTP sent successfully");
-}
+        emailService.sendOtpEmail(email, otp);
+        return Map.of("message", "OTP sent! Check terminal if email fails.");
+    }
 
     //  STEP 2 — Verify OTP
     @PostMapping("/verify-otp")
@@ -82,7 +81,7 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
         userRepo.save(user);
 
         OtpStore.otpMap.remove(email);
-        emailService.sendOtpEmail(email, username);
+        emailService.sendWelcomeEmail(email, username);
 
         return Map.of("message", "Registered successfully");
     }
@@ -131,13 +130,12 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
             user.setRole("USER"); //  store as USER
             user.setVerified(true);
             user = userRepo.save(user);
-            emailService.sendOtpEmail(email, username);
+            emailService.sendWelcomeEmail(email, username);
         }
 
         return Map.of(
             "token", util.generateAccessToken(email, user.getRole()),
             "role", user.getRole()
         );
-        
     }
 }
