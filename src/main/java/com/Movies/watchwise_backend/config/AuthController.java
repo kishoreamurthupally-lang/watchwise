@@ -31,14 +31,15 @@ public class AuthController {
 
     // STEP 1 — Send OTP
  //  STEP 1 — Send OTP
-  @PostMapping("/send-otp")
+@PostMapping("/send-otp")
 public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
 
     String email = req.get("email").toLowerCase().trim();
 
-    if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
-        throw new CustomException("Email already registered");
-    }
+    // ❌ REMOVE THIS BLOCK
+    // if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
+    //     throw new CustomException("Email already registered");
+    // }
 
     String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
     OtpStore.otpMap.put(email, otp);
@@ -47,7 +48,6 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
 
     emailService.sendOtpEmail(email, otp);
 
-    // ✅ IMPORTANT CHANGE
     return Map.of("message", "OTP sent successfully");
 }
 
