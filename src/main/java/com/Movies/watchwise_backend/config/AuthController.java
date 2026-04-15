@@ -36,10 +36,7 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
 
     String email = req.get("email").toLowerCase().trim();
 
-    // ❌ REMOVE THIS BLOCK
-    // if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
-    //     throw new CustomException("Email already registered");
-    // }
+  
 
     String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
     OtpStore.otpMap.put(email, otp);
@@ -85,7 +82,7 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
         userRepo.save(user);
 
         OtpStore.otpMap.remove(email);
-        emailService.sendWelcomeEmail(email, username);
+        emailService.sendOtpEmail(email, username);
 
         return Map.of("message", "Registered successfully");
     }
@@ -134,12 +131,13 @@ public Map<String, String> sendOtp(@RequestBody Map<String, String> req) {
             user.setRole("USER"); //  store as USER
             user.setVerified(true);
             user = userRepo.save(user);
-            emailService.sendWelcomeEmail(email, username);
+            emailService.sendOtpEmail(email, username);
         }
 
         return Map.of(
             "token", util.generateAccessToken(email, user.getRole()),
             "role", user.getRole()
         );
+        
     }
 }
