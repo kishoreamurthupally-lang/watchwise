@@ -12,9 +12,13 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp) {
         try {
+            System.out.println("👉 API KEY: " + apiKey);
+            System.out.println("👉 Sending OTP to: " + toEmail);
+
             Email from = new Email("kishoreamurthupally@gmail.com"); // verified email
             String subject = "WatchWise OTP Verification";
             Email to = new Email(toEmail);
+
             Content content = new Content("text/plain",
                     "Your OTP is: " + otp + "\nValid for 5 minutes.");
 
@@ -29,7 +33,13 @@ public class EmailService {
 
             Response response = sg.api(request);
 
-            System.out.println("SendGrid Status: " + response.getStatusCode());
+            System.out.println("✅ Status: " + response.getStatusCode());
+            System.out.println("✅ Body: " + response.getBody());
+
+            // IMPORTANT CHECK
+            if (response.getStatusCode() != 202) {
+                throw new RuntimeException("Email sending failed");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,6 +52,7 @@ public class EmailService {
             Email from = new Email("kishoreamurthupally@gmail.com");
             String subject = "Welcome to WatchWise!";
             Email to = new Email(toEmail);
+
             Content content = new Content("text/plain",
                     "Hi " + username + ", Welcome to WatchWise!");
 
