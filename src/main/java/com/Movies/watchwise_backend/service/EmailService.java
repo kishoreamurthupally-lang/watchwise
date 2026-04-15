@@ -21,6 +21,9 @@ public class EmailService {
     // ✅ OTP EMAIL
     public void sendOtpEmail(String toEmail, String otp) {
         try {
+            // 🔥 CHECK HERE
+            System.out.println("API KEY: " + apiKey);
+
             System.out.println("👉 Sending OTP to: " + toEmail);
 
             Email from = new Email("kishoreamurthupally@gmail.com");
@@ -53,9 +56,12 @@ public class EmailService {
         }
     }
 
-    // ✅ ADD THIS METHOD (VERY IMPORTANT)
+    // ✅ Welcome Email
     public void sendWelcomeEmail(String toEmail, String username) {
         try {
+            // 🔥 CHECK HERE ALSO
+            System.out.println("API KEY: " + apiKey);
+
             Email from = new Email("kishoreamurthupally@gmail.com");
             String subject = "Welcome to WatchWise!";
             Email to = new Email(toEmail);
@@ -72,7 +78,9 @@ public class EmailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
 
-            sg.api(request);
+            Response response = sg.api(request);
+
+            System.out.println("✅ Welcome Status: " + response.getStatusCode());
 
         } catch (Exception e) {
             e.printStackTrace();
