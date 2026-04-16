@@ -60,42 +60,35 @@ public class AuthController {
     }
 
     //  STEP 3 — Register
-  @PostMapping("/register")
+ @PostMapping("/register")
 public Map<String, String> register(@RequestBody Map<String, String> req) {
+
     String email = req.get("email").toLowerCase().trim();
     String password = req.get("password").trim();
     String username = req.get("username").trim();
     String otp = req.get("otp");
 
-    // ✅ Skip OTP for admin
-    if (!email.equalsIgnoreCase("admin@gmail.com")) {
-        String storedOtp = OtpStore.otpMap.get(email);
-        if (storedOtp == null || !storedOtp.equals(otp)) {
-            throw new CustomException("OTP not verified");
-        }
+    String storedOtp = OtpStore.otpMap.get(email);
+
+    if (storedOtp == null || !storedOtp.equals(otp)) {
+        throw new CustomException("OTP not verified");
     }
 
     User user = new User();
     user.setEmail(email);
     user.setUsername(username);
     user.setPassword(passwordEncoder.encode(password));
-
-    // ✅ Role logic
-    if (email.equalsIgnoreCase("admin@gmail.com")) {
-        user.setRole("ADMIN");
-    } else {
-        user.setRole("USER");
-    }
-
+    user.setRole("USER"); // store as USER — filter adds ROLE_ prefix
     user.setVerified(true);
+
     userRepo.save(user);
 
     OtpStore.otpMap.remove(email);
+
     emailService.sendWelcomeEmail(email, username);
 
     return Map.of("message", "Registered successfully");
 }
-
     //  LOGIN
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody Map<String, String> req) {
