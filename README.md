@@ -7,7 +7,6 @@ A full-stack web application that helps users discover and manage movies with pe
 ## 🔗 Live Demo
 
 Frontend 👉 https://watchwise-react.vercel.app  
-Backend 👉 https://watchwise-20us.onrender.com  
 
 ---
 
